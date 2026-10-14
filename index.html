@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>POSTAL 2</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="view"></canvas>
+
+<div id="hud">
+  <div id="crosshair"><i></i><i></i><i></i><i></i></div>
+
+  <div id="listPanel">
+    <div id="listHead"><span id="dayLabel">MONDAY</span><span id="clock">8:00 AM</span></div>
+    <ul id="tasks"></ul>
+  </div>
+
+  <div id="mapWrap">
+    <canvas id="map" width="180" height="180"></canvas>
+    <div id="compassWrap"><div id="compass">▲</div></div>
+    <div id="objDist">0m</div>
+  </div>
+
+  <div id="vitals">
+    <div class="bar"><div id="hpFill" class="fill hp"></div><span id="hpNum">100</span></div>
+    <div class="bar thin"><div id="arFill" class="fill ar"></div></div>
+    <div class="bar thin"><div id="stFill" class="fill st"></div></div>
+  </div>
+
+  <div id="rightStack">
+    <div id="cash">$60</div>
+    <div id="wanted"></div>
+    <div id="weaponBox"><span id="weaponName">BOOT</span><span id="ammoCount">—</span></div>
+  </div>
+
+  <div id="notices"></div>
+  <div id="prompt"></div>
+  <div id="promptBar"><div></div></div>
+  <div id="subtitle"></div>
+  <div id="dayCard"></div>
+  <div id="voiceState"></div>
+  <div id="lockHint">CLICK TO CAPTURE MOUSE &nbsp;·&nbsp; ARROW KEYS ALSO LOOK</div>
+</div>
+
+<div id="gore"></div>
+<div id="flash"></div>
+<div id="fade"></div>
+
+<div id="menu" class="hidden">
+  <div class="menu-grade"></div>
+  <div class="menu-panel">
+    <div id="menuTitle" class="big"></div>
+    <div id="menuBody"></div>
+    <div id="menuFoot"></div>
+  </div>
+</div>
+
+<div id="boot"><div class="b1">POSTAL 2</div><div class="b2">BUILDING THE TOWN…</div></div>
+
+<script type="module">
+  import { Game } from './src/game.js';
+  const boot = document.getElementById('boot');
+  requestAnimationFrame(() => {
+    try {
+      window.GAME = new Game(document.getElementById('view'), {});
+      boot.remove();
+    } catch (err) {
+      boot.innerHTML = '<div class="b1">FAILED TO START</div><div class="b2">' +
+        String((err && err.message) || err).replace(/</g, '&lt;') + '</div>';
+      console.error(err);
+    }
+  });
+</script>
+</body>
+</html>

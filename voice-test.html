@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Voice test</title>
+<style>
+  body { background:#14151a; color:#e8e4da; font:15px/1.6 -apple-system,Helvetica,Arial,sans-serif;
+         margin:0; padding:36px; }
+  h1 { font-size:20px; letter-spacing:2px; margin:0 0 6px; }
+  p.sub { color:#8d9098; margin:0 0 22px; font-size:13px; }
+  button { background:#d8502c; color:#fff; border:0; padding:13px 22px; font-size:15px;
+           letter-spacing:1px; cursor:pointer; margin:0 8px 10px 0; border-radius:3px; }
+  button.alt { background:#3a3d46; }
+  #out { margin-top:18px; border:1px solid #2c2f36; border-radius:4px; }
+  .line { padding:9px 14px; border-bottom:1px solid #23262c; font-family:ui-monospace,Menlo,monospace; font-size:13px; }
+  .line:last-child { border-bottom:0; }
+  .ok { color:#8fce6a; } .bad { color:#ff8a6a; } .dim { color:#8d9098; }
+  .verdict { margin-top:18px; padding:14px 16px; border-radius:4px; font-size:14px; display:none; }
+  .verdict.show { display:block; }
+  .verdict.good { background:rgba(143,206,106,.12); border:1px solid rgba(143,206,106,.4); }
+  .verdict.fail { background:rgba(255,138,106,.1); border:1px solid rgba(255,138,106,.4); }
+</style>
+</head>
+<body>
+<h1>VOICE TEST</h1>
+<p class="sub">Nothing to do with the game — this page only talks to the browser's speech engine.</p>
+
+<button id="run">RUN TEST</button>
+<button id="list" class="alt">LIST VOICES</button>
+<div id="out"></div>
+<div id="verdict" class="verdict"></div>
+
+<script>
+const out = document.getElementById('out');
+const verdict = document.getElementById('verdict');
+const log = (msg, cls) => {
+  const d = document.createElement('div');
+  d.className = 'line ' + (cls || '');
+  d.textContent = msg;
+  out.appendChild(d);
+};
+const say = (good, msg) => {
+  verdict.className = 'verdict show ' + (good ? 'good' : 'fail');
+  verdict.textContent = msg;
+};
+
+document.getElementById('list').onclick = () => {
+  out.innerHTML = '';
+  const v = speechSynthesis.getVoices();
+  log(v.length + ' voices reported', v.length ? 'ok' : 'bad');
+  v.slice(0, 12).forEach(x => log('  ' + x.name + '  (' + x.lang + ')', 'dim'));
+  if (v.length > 12) log('  …and ' + (v.length - 12) + ' more', 'dim');
+};
+
+document.getElementById('run').onclick = async () => {
+  out.innerHTML = '';
+  verdict.className = 'verdict';
+  const s = window.speechSynthesis;
+  if (!s) { log('No speechSynthesis API at all.', 'bad'); return say(false, 'This browser has no speech API.'); }
+
+  log('voices loaded: ' + s.getVoices().length, s.getVoices().length ? 'ok' : 'bad');
+  log('speaking flag before we start: ' + s.speaking, s.speaking ? 'bad' : 'ok');
+  if (s.speaking) log('  ^ nothing is playing, so this flag is stale — the engine is jammed', 'bad');
+  log('paused flag: ' + s.paused, s.paused ? 'bad' : 'ok');
+
+  const result = await new Promise(resolve => {
+    const u = new SpeechSynthesisUtterance('Voice test. One. Two. Three.');
+    u.volume = 1; u.rate = 0.95;
+    let started = false;
+    u.onstart = () => { started = true; log('onstart fired — you should be hearing this', 'ok'); };
+    u.onend = () => resolve(started ? 'spoke' : 'ended-silently');
+    u.onerror = e => resolve('error:' + (e.error || 'unknown'));
+    try { s.speak(u); } catch (e) { return resolve('threw:' + e.message); }
+    setTimeout(() => resolve(started ? 'spoke' : 'never-started'), 6000);
+  });
+
+  log('result: ' + result, result === 'spoke' ? 'ok' : 'bad');
+  if (result === 'spoke') {
+    say(true, 'Speech works in this browser. If the game is still silent, the bug is in the game — tell Claude.');
+  } else if (result === 'never-started') {
+    say(false, 'The engine accepted the request and never spoke. That is a jammed speech service — fully quit the browser (not just the tab) and reopen. On a Mac, running  killall speechsynthesisd  in Terminal also clears it.');
+  } else {
+    say(false, 'Speech failed: ' + result + '. Fully quit and reopen the browser, then run this again.');
+  }
+};
+</script>
+</body>
+</html>
