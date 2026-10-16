@@ -1,0 +1,35 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Upload bridge</title>
+<style>body{background:#14151a;color:#e8e4da;font:14px -apple-system,Helvetica,Arial;padding:28px}
+#log{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#8d9098;margin-top:14px;white-space:pre-wrap}</style>
+</head><body>
+<h2>Upload bridge</h2>
+<div>Reading project files and handing them to the GitHub tab…</div>
+<div id="log"></div>
+<script>
+// Opened by the GitHub upload page. Reads this project's own files (same
+// origin, so no CORS) and posts them back to the opener as transferable
+// ArrayBuffers. Nothing is uploaded from here.
+const log = m => { document.getElementById('log').textContent += m + '\n'; };
+const params = new URLSearchParams(location.search);
+const want = params.get('set') || 'source';
+(async () => {
+  if (!window.opener) { log('No opener window - open this from the GitHub upload page.'); return; }
+  const list = await fetch('filelist.json', {cache:'no-store'}).then(r => r.json());
+  const paths = list[want] || [];
+  log(paths.length + ' files to read');
+  const out = [];
+  const transfers = [];
+  for (let i = 0; i < paths.length; i++) {
+    const p = paths[i];
+    const buf = await fetch(p, {cache:'no-store'}).then(r => r.arrayBuffer());
+    out.push({ path: p, buf });
+    transfers.push(buf);
+    if (i % 50 === 0) log('read ' + i + '/' + paths.length);
+  }
+  log('sending ' + out.length + ' files to the GitHub tab');
+  window.opener.postMessage({ kind: 'p2-files', set: want, files: out }, '*', transfers);
+  log('done - you can close this tab');
+})().catch(e => log('ERROR: ' + e.message));
+</script>
+</body></html>

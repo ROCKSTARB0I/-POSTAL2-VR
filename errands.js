@@ -70,10 +70,3 @@ export const INTRO_LINES = [
   'Friday. Last day. Then the week is somebody else\'s problem.',
 ];
 
-export const DUDE_IDLE = [
-  'The list is not getting shorter.',
-  'Whole town is out here today.',
-  'Errands. Always errands.',
-  'I could just go home. I will not, but I could.',
-  'One thing at a time.',
-];

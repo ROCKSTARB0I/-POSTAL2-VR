@@ -25,8 +25,9 @@ DUDE_RATE = 165
 # A spread of townsfolk -- mixed genders, accents and ages, so the crowd does
 # not repeat itself. Deliberately excludes Ralph and other deep voices: the
 # Dude (Fred) has to stay the lowest voice in Paradise.
-NPC_VOICES = ['Samantha', 'Tom', 'Karen', 'Daniel', 'Moira', 'Tessa',
-              'Kathy', 'Reed', 'Flo', 'Shelley', 'Rishi', 'Grandpa']
+# Four is plenty: playback shifts each person's pitch on top of these, so the
+# crowd still doesn't repeat itself, at a third of the clips.
+NPC_VOICES = ['Samantha', 'Tom', 'Moira', 'Daniel']
 NPC_RATE = 180
 
 

@@ -5,7 +5,7 @@ import { buildCity, PITCH, GRIDN, TOWN, ROAD, roadAt } from './city.js';
 import * as T from './textures.js';
 import { Person, Car, Pickup, Gib, Particles, Decals, makeCivilian, makeCop, makeThug } from './entities.js';
 import { WEAPONS, WEAPON_ORDER, drawViewModel } from './weapons.js';
-import { DAYS, INTRO_LINES, DUDE_IDLE } from './errands.js';
+import { DAYS, INTRO_LINES } from './errands.js';
 import { DUDE, pickLine } from './barks.js';
 import { Audio } from './audio.js';
 import { Menu } from './menu.js';

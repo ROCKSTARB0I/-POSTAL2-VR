@@ -1,5 +1,8 @@
-.DS_Store
 *.aiff
-__pycache__/
 *.pyc
+.DS_Store
+__pycache__/
+archive.b64
+filelist.json
+handoff.html
 node_modules/
