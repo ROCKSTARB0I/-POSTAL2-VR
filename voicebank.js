@@ -11,17 +11,21 @@ export class VoiceBank {
     this.failed = false;
   }
 
-  async load(base = 'voices/') {
-    this.base = base;
-    try {
-      const res = await fetch(base + 'manifest.json', { cache: 'no-store' });
-      if (!res.ok) throw new Error('no manifest');
-      this.manifest = await res.json();
-      this.ready = true;
-    } catch (e) {
-      this.failed = true;        // fall back to the browser's speech engine
+  // Tries voices/ first, then the page's own directory -- the deployed copy is
+  // flat because GitHub's uploader drops folder structure.
+  async load(bases = ['voices/', './']) {
+    for (const base of bases) {
+      try {
+        const res = await fetch(base + 'manifest.json', { cache: 'no-store' });
+        if (!res.ok) continue;
+        this.manifest = await res.json();
+        this.base = base;
+        this.ready = true;
+        return true;
+      } catch (e) { /* try the next location */ }
     }
-    return this.ready;
+    this.failed = true;          // fall back to the browser's speech engine
+    return false;
   }
 
   // Which file, if any, covers this line.

@@ -60,11 +60,13 @@
 <div id="boot"><div class="b1">POSTAL 2</div><div class="b2">BUILDING THE TOWN…</div></div>
 
 <script type="module">
-  import { Game } from './src/game.js';
+  // Works whether the modules sit in src/ or beside this file: GitHub's web
+  // uploader flattens folders, so the deployed copy is flat.
   const boot = document.getElementById('boot');
+  const mod = await import('./src/game.js').catch(() => import('./game.js'));
   requestAnimationFrame(() => {
     try {
-      window.GAME = new Game(document.getElementById('view'), {});
+      window.GAME = new mod.Game(document.getElementById('view'), {});
       boot.remove();
     } catch (err) {
       boot.innerHTML = '<div class="b1">FAILED TO START</div><div class="b2">' +
